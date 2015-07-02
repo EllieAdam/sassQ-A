@@ -405,11 +405,519 @@ Ans.
 		@return  $width * 9 / 16
   }
 
-
-
-
 .intro {
   background: #000;
   width: 500px;
   height: aspect(500px);
 }
+
+Q22.
+A number stored in $size is being used to set the font size for our .switch. Based on $size, create a conditional statement with @if inside .switch: if $size is less than or equal to 16px, font-family: Arial, sans-serif; is output. Otherwise, font-family: Helvetica, sans-serif; is output.
+
+Ans.
+$size: 18px;
+
+.switch {
+  font-size: $size;
+  @if $size <= 16px {
+    font-family: Arial, sans-serif;
+    }@else{
+    font-family: Helvetica, sans-serif;
+    }
+}
+
+Q23.
+On the same conditional, use @else if to add a condition between the existing @if and @else: if $size is less than or equal to 24px, font-family: Georgia, serif; is output.
+
+Ans.
+$size: 18px;
+
+  .switch {
+    font-size: $size;
+    @if $size <= 16px {
+      font-family: Arial, sans-serif;
+    } @else if $size <= 24px {
+      font-family: Georgia, serif;
+    } @else {
+      font-family: Helvetica, sans-serif;
+    }
+  }
+
+
+Q24.
+This @if directive could be useful outside .switch - let's expand the scope. Move everything inside of .switch to a mixin called family that takes an argument of $size. Remove the existing $size: 18px; line, then call the mixin from within .switch, passing 18px as an argument.
+
+Ans.
+@mixin family ($size) {
+  font-size: $size;
+  @if $size <= 16px {
+    font-family: Arial, sans-serif;
+  } @else if $size <= 24px {
+    font-family: Georgia, serif;
+  } @else {
+    font-family: Helvetica, sans-serif;
+  }
+}
+.switch {
+   @include family(18px);
+  }
+
+Q25.
+Someone left us a to-do above this segment - we can clean it up for future expansion by generating the selectors and background with @each. Start by creating a list variable named $tools to store socket, wrench, and bolt.
+// TODO: simplify with @each
+
+.tool-socket {
+  background: url('socket.png') no-repeat;
+}
+.tool-wrench {
+  background: url('wrench.png') no-repeat;
+}
+.tool-bolt {
+  background: url('bolt.png') no-repeat;
+}
+
+Ans.
+// TODO: simplify with @each
+$tools: socket wrench bolt;
+@each $tool in $tools {
+  .tool-#{$tool} {
+     background: url('#{$tool}.png') no-repeat;
+    }
+}
+
+
+Q26.
+Technically, it works - but this @for with a nested @if is more complicated than necessary to target odd numbers from 1 to 7. Remove the @if statement and refactor the @for using @while instead to achieve the same result. Note: if you aren't familiar with the % operator, don't worry - it's covered in the next level.
+
+@for $i from 1 through 7 {
+  @if $i % 2 != 0 {
+    .row-#{$i} {
+      background: #ccc;
+      height: $i * 10px;
+    }
+  }
+}
+
+
+Ans.
+$i: 1;
+
+@while $i <= 7 {
+  .row-#{$i} {
+    background: #ccc;
+    height: $i * 10px;
+  }
+  $i: $i + 2;
+}
+
+Q27.
+To ensure consistent spacing between columns, our stylesheet has a reusable $gutter variable. Subtract the width values in .factory and .highrise by $gutter to account for the margin.
+
+Ans.
+$gutter: 20px;
+
+.factory {
+  background: #fff;
+  margin-right: $gutter;
+  width: 600px - $gutter;
+}
+.highrise {
+  background: #797979;
+  margin-right: $gutter;
+  width: 300px - $gutter;
+}
+
+Q28.
+Your coworker has been attempting to set the font size of span elements inside .sign to half the .sign font size, without success. Knowing what you do about triggering division, utilize parentheses to fix the problem.
+.sign {
+  font-size: 3.75em;
+  font-weight: bold;
+  padding: 20px 40px;
+  span {
+    font-size: 3.75em / 2;
+  }
+}
+Ans.
+.sign {
+  font-size: 3.75em;
+  font-weight: bold;
+  padding: 20px 40px;
+  span {
+    font-size: (3.75em / 2);
+  }
+}
+
+Q29.
+3.75em has been recurring throughout our stylesheet, so let's move it to a variable and use that variable where possible. Remember: utilizing a variable also triggers division, which removes the need for our parentheses.
+
+Ans.
+$default-font-size: 3.75em;
+.sign {
+  font-size: $default-font-size;
+  font-weight: bold;
+  padding: 20px 40px;
+  span {
+    font-size: $default-font-size / 2;
+  }
+}
+
+
+Q30.Our @if directive performs a bit of string concatenation, but we'd prefer if the output value had quotes around it. Tweak the directive to ensure this is the case.
+
+Ans.
+$theme: modern;
+$font: 'serif';
+
+@if $theme == modern {
+  $font: 'sans-' + $font;
+}
+
+.sign {
+  font-family: $font;
+}
+
+Q31.
+On reflection, it'd be nice to have a cleaner font size to work with after performing arithmetic inside our span. Use the appropriate built-in function to round the span's font size to the nearest whole number.
+
+Ans.
+$size: 3.75em;
+
+.sign {
+  font-size: 3.75em;
+  font-weight: bold;
+  padding: 20px 40px;
+  span {
+    font-size: round($size / 2);
+  }
+}
+
+Q32.
+Our .factory and .highrise declarations are lacking responsiveness: using the target / context formula, the given $context variable, and percentage(), give each declaration a fluid width. No need to refactor this into a separate function, just add your percentage() calls within .factory and .highrise.
+
+Ans.
+$context: 960px;
+
+.factory {
+  background: #fff;
+  width: percentage(600px / $context);
+}
+.highrise {
+  background: #797979;
+  width: percentage(300px / $context);
+}
+
+Q33.
+We've stored a hex color value in $color-base, but the rgb equivalent (121,121,121) is being used in .modal. Use the shorthand version of rgba() to make use of the already-available $color-base value.
+
+Ans.
+$color-base: #797979;
+
+.modal {
+  background: rgba($color-base,0.75);
+  border: 1px solid $color-base;
+  padding: 20px;
+}
+
+Q34.
+Anchor elements are currently missing a hover state - add one via nesting which sets a color 15% lighter than $color-link.
+$color-link: #3097b4;
+
+a {
+  color: $color-link;
+  text-decoration: underline;
+}
+
+
+Ans.$color-link: #3097b4;
+
+a {
+  color: $color-link;
+  text-decoration: underline;
+  &:hover {
+     color: lighten($color-link, 15%);
+  }
+}
+
+Q35.
+Our newly-added hover state isn't bad, but we'd like to up the intensity a bit. Keeping the lighter value, increase the saturation by 20%. Note: look to the :active state to see an example of nested color functions.
+$color-link: #3097b4;
+
+a {
+  color: $color-link;
+  text-decoration: underline;
+  &:hover {
+    color: lighten($color-link, 15%);
+  }
+  &:active {
+    color: desaturate(darken($color-link, 15%), 25%);
+  }
+}
+
+Ans.
+
+$color-link: #3097b4;
+
+a {
+  color: $color-link;
+  text-decoration: underline;
+  &:hover {
+    color: saturate(lighten($color-link, 15%), 20%);
+
+  }
+  &:active {
+    color: desaturate(darken($color-link, 15%), 25%);
+
+  }
+}
+
+Q36.
+Unfortunately, our hover state just isn't obvious enough. Remove the saturate() and lighten() additions, and use a color function to invert the value.
+$color-link: #3097b4;
+
+a {
+  color: $color-link;
+  text-decoration: underline;
+  &:hover {
+    color: saturate(lighten($color-link, 15%), 20%);
+  }
+  &:active {
+    color: desaturate(darken($color-link, 15%), 25%);
+  }
+}
+
+
+Ans.
+$color-link: #3097b4;
+
+a {
+  color: $color-link;
+  text-decoration: underline;
+  &:hover {
+    color: invert($color-link);
+  }
+
+  &:active {
+    color: desaturate(darken($color-link, 15%), 25%);
+  }
+}
+Q37.
+Our stylesheet contains a responsive breakpoint with some alterations to .factory. Let's clean up the media query a bit by nesting it inside .factory.
+    .factory {
+      width: 100%;
+    }
+    @media (min-width: 960px) {
+      .factory {
+        width: percentage(600px / 960px);
+      }
+    }
+Ans.
+    .factory {
+      width: 100%;
+
+    @media (min-width: 960px) {
+
+        width: percentage(600px / 960px);
+
+    }
+    }
+Q38.
+Media query handling has now been moved to a respond-to mixin, which has a fixed breakpoint for when desktop is passed as an argument. Use @else if to add a second condition that checks for an argument of tablet. tablet should output a media query with a min-width of 768px containing the @content block.
+
+@mixin respond-to($media) {
+  @if $media == desktop {
+    @media (min-width: 960px) {
+      @content;
+    }
+  }
+}
+
+.factory {
+  width: 100%;
+  @include respond-to(desktop) {
+    width: percentage(600px / 960px);
+  }
+  @include respond-to(tablet) {
+    width: 50%;
+  }
+}
+
+Ans.
+@mixin respond-to($media) {
+  @if $media == desktop {
+    @media (min-width: 960px) {
+      @content;
+    }
+  }@else if $media == tablet {
+  @media (min-width: 768px) {
+      @content;
+  }
+}
+}
+.factory {
+  width: 100%;
+  @include respond-to(desktop) {
+    width: percentage(600px / 960px);
+  }
+  @include respond-to(tablet) {
+    width: 50%;
+  }
+}
+
+Q39.
+Let's make our respond-to more flexible by allowing it to accept query values rather than fixed breakpoints. Rewrite the mixin to output a media query with a min-width of the $query argument, which contains the @content block.
+@mixin respond-to($query) {
+
+}
+
+.factory {
+  width: 100%;
+  @include respond-to(960px) {
+    width: percentage(600px / 960px);
+  }
+  @include respond-to(768px) {
+    width: 50%;
+  }
+}
+
+Ans.
+@mixin respond-to($query) {
+@media (min-width: $query) {
+   @content;
+  }
+}
+
+.factory {
+  width: 100%;
+  @include respond-to(960px) {
+    width: percentage(600px / 960px);
+  }
+  @include respond-to(768px) {
+    width: 50%;
+  }
+}
+
+Q40.
+We should further expand our mixin to allow for queries beyond min-width. Add $type as the first argument to respond-to, which will be used in place of min-width when passed in.
+@mixin respond-to($query) {
+  @media (min-width: $query) {
+    @content;
+  }
+}
+
+.factory {
+  width: 100%;
+  @include respond-to(min-width, 960px) {
+    width: percentage(600px / 960px);
+  }
+  @include respond-to(max-width, 768px) {
+    width: 50%;
+  }
+}
+
+Ans.
+@mixin respond-to($type, $query) {
+  @media ($type: $query) {
+    @content;
+  }
+}
+
+.factory {
+  width: 100%;
+  @include respond-to(min-width, 960px) {
+    width: percentage(600px / 960px);
+  }
+  @include respond-to(max-width, 768px) {
+    width: 50%;
+  }
+}
+Q41.
+
+Ans.
+We've noticed that our most common call to respond-to passes in min-width for $type and 960px for $query: create default values out of each so that our simplified @include works correctly.
+
+Q42.
+
+Ans.
+
+Q43.
+
+Ans.
+
+Q44.
+
+Ans.
+
+Q45.
+
+Ans.
+
+Q46.
+
+Ans.
+
+Q47.
+
+Ans.
+
+
+Q48.
+
+Ans.
+
+Q49.
+
+Ans.
+
+Q50.
+
+Ans.
+
+
+Q50.
+
+Ans.
+
+
+Q50.
+
+Ans.
+
+
+Q50.
+
+Ans.
+
+
+Q50.
+
+Ans.
+
+
+Q50.
+
+Ans.
+
+
+Q50.
+
+Ans.
+
+
+Q50.
+
+Ans.
+
+
+Q50.
+
+Ans.
+
+
+Q50.
+
+Ans.
+
+
+Q50.
+
+Ans.
