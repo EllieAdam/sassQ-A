@@ -830,94 +830,758 @@ Ans.
     width: 50%;
   }
 }
+
 Q41.
 
 Ans.
 We've noticed that our most common call to respond-to passes in min-width for $type and 960px for $query: create default values out of each so that our simplified @include works correctly.
+Ans.
+@mixin respond-to($type: min-width, $query:min-width) {
+  @media ($type: $query) {
+    @content;
+  }
+}
 
+.factory {
+  width: 100%;
+  @include respond-to(min-width, 960px) {
+    width: percentage(600px / 960px);
+  }
+  @include respond-to(max-width, 768px) {
+    width: 50%;
+  }
+}
+
+LEVEL TWO SASS ADVANCE
 Q42.
-
+The foreman has a newfound efficiency obsession, and has ordered a switch to the indented syntax. Refactor the .surveyor declaration to do away with braces and semicolons.
+.surveyor {
+  border: 1px solid #cccccc;
+  padding: 20px;
+  h2 {
+    font-size: 18px;
+    a {
+      color: green;
+    }
+  }
+}
 Ans.
-
+.surveyor
+  border: 1px solid #cccccc
+  padding: 20px
+  h2
+    font-size: 18px
+    a
+      color: green
 Q43.
+Someone cleaned up the assemble section for us, but forgot to make use of the indented syntax shortcuts for declaring and including mixins. Fix the code below, utilizing = and +.
+@mixin assemble($side, $bg: #fff, $pad: 10px)
+  background: $bg
+  border-#{$side}: 1px solid #ccc
+  padding: $pad
+
+.factory
+  @include assemble(left)
+.highrise
+  @include assemble(right, #797979, 20px)
 
 Ans.
+=assemble($side, $bg: #fff, $pad: 10px)
+  background: $bg
+  border-#{$side}: 1px solid #ccc
+  padding: $pad
 
+.factory
+  +assemble(left)
+.highrise
+  +assemble(right, #797979, 20px)
 Q44.
+Our crew is made up of surveyors and architects, but only surveyors are represented in our @each loop at the moment. Use join() to combine the two lists into a variable called $crew. Ensure you change the @each declaration to loop over $crew after it's created. The foreman's obsession with the indented syntax has subsided, and you can now choose which syntax to use via the editor.
+$surveyors: judy phillip
+$architects: william emily
+
+@each $name in $surveyors
+  .team-#{$name}
+    background: url('../images/#{$name}.jpg')
 
 Ans.
+$surveyors: judy phillip
+$architects: william emily
+$crew: join($surveyors, $architects)
+
+@each $name in $crew
+  .team-#{$name}
+    background: url('../images/#{$name}.jpg')
 
 Q45.
+Instead of generating classes with hyphenated names (.team-judy), we've been asked to use each crew member's index (.team-1). Use $crew and $name with index() to fulfill this request.
+$surveyors: judy phillip
+$architects: william emily
+$crew: join($surveyors, $architects)
+
+@each $name in $crew
+  .team-#{$name}
+    background: url('../images/#{$name}.jpg')
+
 
 Ans.
+$surveyors: judy phillip
+$architects: william emily
+$crew: join($surveyors, $architects)
+
+@each $name in $crew
+  .team-#{index($crew, $name)}
+    background: url('../images/#{$name}.jpg')
 
 Q46.
+Rather than store a collection of shared styles in a class or placeholder selector, our coworker is convinced they should be represented as shown in $styles - a list of lists. Inside the @each loop within .factory, utilize nth() to create working CSS properties and values from each pair in $styles.
+
+$styles: background #333, margin 20px, padding 10px
+
+.factory
+  @each $style in $styles
 
 Ans.
+$styles: background #333, margin 20px, padding 10px
+
+.factory
+  @each $style in $styles
+    #{nth($style, 1)}: nth($style, 2)
 
 Q47.
+Adding a subtle change to .socket on :hover isn't going well: darken() causes the background to become black at low percentages. Instead, use scale_color to relatively darken the color by 30%. Hint: you'll need to use a negative value on the $lightness keyword argument.
+
+.socket
+  background: #333
+  &:hover
+    background: darken(#333, 30%)
 
 Ans.
 
+.socket
+  background: #333
+  &:hover
+    background: scale_color(#333, $lightness: -30%)
 
 Q48.
+The text color of .worksite is dependent on the number of members in our crew. Let's update the conditional statement to use the single-line if() for brevity.
+
+$crew: judy phillip william emily
+
+.worksite
+  @if length($crew) < 5
+    color: green
+  @else
+    color: red
 
 Ans.
+$crew: judy phillip william emily
 
+.worksite
+  color: if(length($crew) < 5, green, red)
 Q49.
+Any h1s found inside classes that extend %container should have yellow text. Nest a new h1 declaration inside %container with the appropriate property to achieve this.
 
+%container
+  background: blue
+  border-radius: 5px
+  margin-bottom: 15px
+  padding: 10px
+
+.blueprint
+  @extend %container
+.surveyor
+  @extend %container
+  color: #fff
 Ans.
+%container
+  background: blue
+  border-radius: 5px
+  margin-bottom: 15px
+  padding: 10px
+  h1
+    color: yellow
+
+.blueprint
+  @extend %container
+.surveyor
+  @extend %container
+  color: #fff
 
 Q50.
+We've added a slight transition to our anchor color, but we were a bit overzealous: without Compass imported, the transition mixin isn't available. Add Compass to the top of our stylesheet to rectify this situation.
+
+a
+  +transition(color 0.2s ease-in-out)
+  color: blue
+  &:hover,
+  &:focus
+    color: red
+Ans.
+
+@import compass
+a
+  +transition(color 0.2s ease-in-out)
+  color: blue
+  &:hover,
+  &:focus
+    color: red
+Q51.
+When used for quick examples and non-production versions of sites, the Compass reset module can be quite useful. Let's add it to our stylesheet, for now.
+
+Ans.
+@import compass, compass/reset
+
+Q52.
+.socket partially rotates when .is-active is added, but the non-prefixed transform property is lacking support in some browsers. Use the transform mixin instead to widen coverage.
+@import "compass"
+
+.socket
+  border-radius: 50%
+  height: 200px
+  width: 200px
+  &.is-active
+    transform: rotate(45deg)
+
+Ans.
+@import "compass"
+
+.socket
+  border-radius: 50%
+  height: 200px
+  width: 200px
+  &.is-active
+    +transform(rotate(45deg))
+
+
+Q53.
+Someone added a radial gradient and, aside from being a bit of an eyesore, it's proving difficult to maintain. Go ahead and use the background mixin to simplify the process.
+@import "compass"
+
+.socket
+  background: -webkit-gradient(radial, 50%, 0, 50%, 100, color-stop(0%, #333), color-stop(100%, #222))
+  background: -webkit-radial-gradient(center, #333, #222)
+  background: -moz-radial-gradient(center, #333, #222)
+  background: -ms-radial-gradient(center, #333, #222)
+  background: -o-radial-gradient(center, #333, #222)
+  background: radial-gradient(center, #333, #222)
+  border-radius: 50%
+  height: 200px
+  width: 200px
+
+Ans.
+@import "compass"
+
+.socket
+  +background(radial-gradient(center, #333, #222))
+  border-radius: 50%
+  height: 200px
+  width: 200px
+
+Q54.
+
+There's been a last-minute change from the design team - rather than having a radial-gradient starting from the center, .socket should have a linear-gradient starting at the top. Assure them it's a quick fix by adjusting the value while they wait.
+
+@import "compass"
+
+.socket
+  +background(radial-gradient(center, #333, #222))
+  border-radius: 50%
+  height: 200px
+  width: 200px
+
+Ans.
+linear-gradient
+
+@import "compass"
+
+.socket
+  +background(linear-gradient(center, #333, #222))
+  border-radius: 50%
+  height: 200px
+  width: 200px
+
+
+Q55.
+A coworker unexpectedly shifted the location of our font files, keeping our included @font-face from functioning correctly. Use the font-url helper in place of url to ensure it isn't an issue in the future.
+
+@import "compass"
+
+@font-face
+  font-family: 'Rokkitt'
+  src: url('../fonts/rokkitt.woff')
+
+Ans.
+@import "compass"
+
+@font-face
+  font-family: 'Rokkitt'
+  src: font-url('rokkitt.woff')
+
+
+Q56.
+With Compass around, let's simplify our scale_color adjustment from Level 1 to simply use scale-lightness.
+@import "compass"
+
+.socket
+  background: #333
+  &:hover
+    background: scale_color(#333, $lightness: -30%)
+
+Ans.
+@import "compass"
+
+.socket
+  background: #333
+  &:hover
+    background: scale-lightness(#333, -30%)
+
+
+Q57.
+The .warning and .error states of .note currently have hardcoded background colors, but we'd prefer to have them adjust our stored variable. Set .warning to scale the lightness of $color-highlight up by 20%, and set .error to scale the saturation of $color-highlight up by 90%.
+
+@import "compass"
+$color-highlight: #e5e5e5
+
+.note
+  background: $color-highlight
+  padding: 10px
+  &.warning
+    background: #cecece
+  &.error
+    background: #fccece
+Ans.
+
+.note
+  background: $color-highlight
+  padding: 10px
+  &.warning
+    background: scale-lightness($color-highlight, 20%)
+  &.error
+    background: scale-saturation($color-highlight, 90%)
+
+Q58.
+Our site design calls for containers that have the same border styles on opposite sides. We've started the borders mixin that sets $style on the correct $side - let's finish up by setting the same $style on the opposite border via opposite-position().
+
+@import "compass"
+
+=borders($side, $style)
+  border-#{$side}: $style
+
+.complex
+  +borders(left, 10px solid #ccc)
 
 Ans.
 
+@import "compass"
 
-Q50.
+=borders($side, $style)
+  $opposite: opposite-position($side)
+  border-#{$side}: $style
+  border-#{$opposite}: $style
+
+.complex
+  +borders(left, 10px solid #ccc)
+
+Q59.
+Someone started automating button creation with the button mixin, but every button has #eee-colored text regardless of background. Replace the color value in the mixin with the contrast-color() function, passing in $color and returning #111 as the dark value and #eee as the light value with a 50% threshold.
+
+@import "compass"
+
+=button($color)
+  background-color: $color
+  color: #eee
+
+.btn-a
+  +button(#9fb2b0)
+.btn-b
+  +button(#e58e1a)
+.btn-c
+  +button(#322e2a)
+
+Ans.
+@import "compass"
+
+=button($color)
+  background-color: $color
+  color: contrast-color($color, #111, #eee, 50%)
+
+.btn-a
+  +button(#9fb2b0)
+.btn-b
+  +button(#e58e1a)
+.btn-c
+  +button(#322e2a)
+
+Q60.
+We've added decorative overlays with the :after pseudo-element, using the absolute positioning trick to make it stick a few pixels from each edge. Clean up the styles by importing the compass/layout module and adding stretch.
+
+.bio
+  position: relative
+  &:after
+    background: rgba(#000, 0.3)
+    content: ""
+    position: absolute
+    top: 10px
+    right: 5px
+    bottom: 10px
+    left: 5px
 
 Ans.
 
+@import "compass/layout"
+.bio
+  position: relative
+  &:after stretch
+    background: rgba(#000, 0.3)
+    content: ""
+  +stretch(10px, 5px, 10px, 5px)
 
-Q50.
+
+Q61.
+.entry has arrow.png as a background image, set off to the right. We need a line height equal to arrow.png's height (30px) and right padding equal to arrow.png's width (30px), plus 10px. Use image-height() and image-width() to automate the values currently being set manually.
+
+@import "compass"
+
+.entry
+  background: image-url('arrow.png') right center no-repeat
+  line-height: 30px
+  padding-right: 30px + 10px
+
+Ans
+@import "compass"
+
+.entry
+  background: image-url('arrow.png') right center no-repeat
+  line-height: image-height('arrow.png')
+  padding-right: image-width('arrow.png') + 10px
+
+Q62.
+Since arrow.png is the only background image in our stylesheet, we're probably better off saving the HTTP request and just embedding it. Swap out the image-url() function to achieve Base64 encoding.
+
+@import "compass"
+
+.entry
+  background: image-url('arrow.png') right center no-repeat
+  line-height: image-height('arrow.png')
+  padding-right: image-width('arrow.png') + 10px
+Ans
+@import "compass"
+
+.entry
+  background: inline-image('arrow.png') right center no-repeat
+  line-height: image-height('arrow.png')
+  padding-right: image-width('arrow.png') + 10px
+
+part-4
+
+Q63.
+Before getting too far into text styling, the team's decided to try out the Compass vertical rhythm module. Move the base font size and line height values out of body and into the appropriate global variables, then kick things off with establish-baseline.
+
+
+
+Ans
+@import "compass"
+
+$base-font-size: 16px
+$base-line-height: 24px
++establish-base
+
+Q64.
+With our newly-found rhythm, the font-size properties below only serve to mess up the grid. Replace them with the equivalent vertical rhythm mixin.
+
+@import "compass"
+
+$base-font-size: 16px
+$base-line-height: 24px
++establish-baseline
+
+h1
+  font-size: 48px
+
+h2
+  font-size: 24px
+
+p
+  font-size: 19px
+Ans
+@import "compass"
+
+$base-font-size: 16px
+$base-line-height: 24px
++establish-baseline
+
+h1
+ +adjust-font-size-to(48px)
+
+h2
+ +adjust-font-size-to(24px)
+
+p
+ +adjust-font-size-to(19px)
+Q65.
+Let's give our elements a bit of spacing. uls should have a 1 unit trailer, and all lis should have a 0.5 unit leader and trailer.
+@import "compass"
+
+$base-font-size: 16px
+$base-line-height: 24px
++establish-baseline
+
+h1
+  +adjust-font-size-to(48px)
+
+h2
+  +adjust-font-size-to(24px)
+
+p
+  +adjust-font-size-to(19px)
+
+Ans
+@import "compass"
+
+$base-font-size: 16px
+$base-line-height: 24px
++establish-baseline
+
+h1
+  +adjust-font-size-to(48px)
+
+h2
+  +adjust-font-size-to(24px)
+
+p
+  +adjust-font-size-to(19px)
+ul
+  +trailer(1)
+li
+  +leader(.5)
+  +trailer(.5)
+Q66.
+It was a late night, and our last commit seems to have thrown the grid off - the h1 leading tweak isn't taking its adjusted font size into consideration. Pass the necessary value into adjust-leading-to to account for the change in size.
+
+@import "compass"
+
+$base-font-size: 16px
+$base-line-height: 24px
++establish-baseline
+
+h1
+  +adjust-font-size-to(48px)
+  +adjust-leading-to(4)
+
+h2
+  +adjust-font-size-to(24px)
+
+p
+  +adjust-font-size-to(19px)
+
+ul
+  +trailer(1)
+
+li
+  +leader(0.5)
+  +trailer(0.5)
+
+Ans
+
+h1
+  +adjust-font-size-to(48px)
+  +adjust-leading-to(4, 48px)
+
+Q67.
+With Challenge 4's lesson in mind, we're ready to add a 1 unit trailer to the p.
+@import "compass"
+
+$base-font-size: 16px
+$base-line-height: 24px
++establish-baseline
+
+h1
+  +adjust-font-size-to(48px)
+  +adjust-leading-to(4, 48px)
+
+h2
+  +adjust-font-size-to(24px)
+
+p
+  +adjust-font-size-to(19px)
+ul
+  +trailer(1)
+
+li
+  +leader(0.5)
+  +trailer(0.5)
+
+Ans
+p
+  +adjust-font-size-to(19px)
+  +trailer(1, 19px)
+Q68.
+We've added a bit of padding above and below our li items, but the resulting collection of four mixins on li is lacking optimization. Clean things up with rhythm.
+
+@import "compass"
+
+$base-font-size: 16px
+$base-line-height: 24px
++establish-baseline
+
+h1
+  +adjust-font-size-to(48px)
+  +adjust-leading-to(4, 48px)
+
+h2
+  +adjust-font-size-to(24px)
+
+p
+  +adjust-font-size-to(19px)
+  +trailer(1, 19px)
+
+ul
+  +trailer(1)
+
+li
+  +leader(0.5)
+  +padding-leader(0.5)
+  +padding-trailer(0.5)
+  +trailer(0.5)
+Ans
+
+li
+  +rhythm(0.5, 0.5, 0.5, 0.5)
+
+Q69.
+Another late night has produced a second gem: the border added to h2 is playing havoc on our baseline. Replace the border-top property with the appropriate mixin, using 1 unit for the padding value and ensuring the adjusted font size is accounted for.
+
+
+Ans
+
+
+h2
+  +adjust-font-size-to(24px)
+  +leading-border(2px, 1, 24px)
+  border-color: #C5BDAF
+
+Q70.
+Just before pushing the site to production, the foreman has burst into your office, breathlessly asking for the paragraph to stand out just a touch more. Add a 2px border and 1 unit of padding to each side of the p, without upsetting your grid.
+
+
+@import "compass"
+
+$base-font-size: 16px
+$base-line-height: 24px
++establish-baseline
+
+h1
+  +adjust-font-size-to(48px)
+  +adjust-leading-to(4, 48px)
+
+h2
+  +adjust-font-size-to(24px)
+  +leading-border(2px, 1, 24px)
+  border-color: #C5BDAF
+
+p
+  +adjust-font-size-to(19px)
+  +trailer(1, 19px)
+  border-color: #C5BDAF
+
+ul
+  +trailer(1)
+
+li
+  +rhythm(0.5, 0.5, 0.5, 0.5)
 
 Ans.
+p
 
+  +adjust-font-size-to(19px)
+  +trailer(1, 19px)
+  border-color: #C5BDAF
+  +rhythm-borders(2px, 1, 19px)
 
-Q50.
-
-Ans.
-
-
-Q50.
-
-Ans.
-
-
-Q50.
+LEVEL 5
+Q.71.
+Three variations of the company logo show up in our design, so we've saved each to the logos folder in the images directory. To make usage easy, let's use Compass automatic spriting: start by importing all .png files in the logos folder.
 
 Ans.
+@import "compass"
+
+@import 'logos/*.png'
+
+Q.72
+Now that our sprite image has been generated, complete the automatic setup with the all-x-sprites mixin, remembering that x represents the folder name our sprites reside in
+
+Ans
+@import "compass"
+
+@import 'logos/*.png'
+
++all-logos-sprites
+
+Q.73
+Oh. They weren't logo variations after all - these images are the default, hover, and active states of a link. It'll be easier to handle this manually, so let's start by removing the automatic import and mixin. After that, set an appropriate sprite-map to a variable called $logos.
 
 
-Q50.
+Ans
+@import "compass"
 
-Ans.
+$logos: sprite-map("logos/*.png")
 
+Q.74
+With our sprite map created, use $logos to set the generated sprite image as the background of .logo.
+@import "compass"
+$logos: sprite-map("logos/*.png")
 
-Q50.
-
-Ans.
-
-
-Q50.
-
-Ans.
-
-
-Q50.
-
-Ans.
+.logo
+  display: block
+  text-indent: -9999px
 
 
-Q50.
+Ans
+@import "compass"
+$logos: sprite-map("logos/*.png")
 
-Ans.
+.logo
+  display: block
+  text-indent: -9999px
+  background: $logos
+
+Q.75
+We're starting to make headway, but .logo isn't sized to show the full image. Use the sprite-dimensions mixin with $logos and the default state's image name (logo) to generate the dimensions for us.
+
+@import "compass"
+$logos: sprite-map("logos/*.png")
+
+.logo
+  background: $logos
+  display: block
+  text-indent: -9999px
+
+Ans
+@import "compass"
+$logos: sprite-map("logos/*.png")
+
+.logo
+  background: $logos
+  display: block
+  text-indent: -9999px
+  +sprite-dimensions($logos, logo)
+
+Q.76
+Almost finished. sprite-position for the default state has been added - now we just need to adjust the positioning for the other states. Create a nested :hover state that sets a background-position with the position of the hover image, and do the same for the :active state with the active image.
+
+
+Ans
+@import "compass"
+$logos: sprite-map("logos/*.png")
+
+
+.logo
+  background: $logos sprite-position($logos, logo)
+  display: block
+  text-indent: -9999px
+  +sprite-dimensions($logos, logo)
+  &:hover
+    background-position: sprite-position($logos, hover)
+  &:active
+    background-position: sprite-position($logos, active)
